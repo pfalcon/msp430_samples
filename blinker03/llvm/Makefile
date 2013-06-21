@@ -11,8 +11,9 @@ HLOPS = -Wall -emit-llvm
 
 LLCOPS = -march=msp430
 
+APP = blinker03
 
-all : blinker03.opt.hex blinker03.norm.hex
+all : $(APP).opt.hex $(APP).norm.hex $(APP).cbackend.elf
 
 clean :
 	rm -f *.o
@@ -31,42 +32,42 @@ reset.o : reset.s
 	msp430-as reset.s -o reset.o
 
 
-blinker03.bc : blinker03.c
-	clang $(LOPS) -c blinker03.c -o blinker03.bc
+$(APP).bc : $(APP).c
+	clang $(LOPS) -c $(APP).c -o $(APP).bc
 
-blinker03.opt.o : blinker03.bc
-	$(OPT) $(OOPS) blinker03.bc -f -o blinker03.opt.bc
-	$(LLC) $(LLCOPS) blinker03.opt.bc -o blinker03.opt.s
-	msp430-as blinker03.opt.s -o blinker03.opt.o
+$(APP).opt.o : $(APP).bc
+	$(OPT) $(OOPS) $(APP).bc -f -o $(APP).opt.bc
+	$(LLC) $(LLCOPS) $(APP).opt.bc -o $(APP).opt.s
+	msp430-as $(APP).opt.s -o $(APP).opt.o
 
-blinker03.opt.elf : memmap startup.o reset.o blinker03.opt.o
-	msp430-ld -T memmap reset.o blinker03.opt.o startup.o -o blinker03.opt.elf
+$(APP).opt.elf : memmap startup.o reset.o $(APP).opt.o
+	msp430-ld -T memmap reset.o $(APP).opt.o startup.o -o $(APP).opt.elf
 
-blinker03.opt.hex : blinker03.opt.elf
-	msp430-objdump -D blinker03.opt.elf > blinker03.opt.list
-	msp430-objcopy -O ihex blinker03.opt.elf blinker03.opt.hex
-
-
-
-blinker03.norm.o : blinker03.bc
-	$(LLC) $(LLCOPS) blinker03.bc -o blinker03.norm.s
-	msp430-as blinker03.norm.s -o blinker03.norm.o
-
-blinker03.norm.elf : memmap startup.o reset.o blinker03.norm.o
-	msp430-ld -T memmap reset.o blinker03.norm.o startup.o -o blinker03.norm.elf
-
-blinker03.norm.hex : blinker03.norm.elf
-	msp430-objdump -D blinker03.norm.elf > blinker03.norm.list
-	msp430-objcopy -O ihex blinker03.norm.elf blinker03.norm.hex
+$(APP).opt.hex : $(APP).opt.elf
+	msp430-objdump -D $(APP).opt.elf > $(APP).opt.list
+	msp430-objcopy -O ihex $(APP).opt.elf $(APP).opt.hex
 
 
-blinker03.cbackend.o : blinker03.bc
-	$(LLC) -march=c blinker03.bc -o blinker03.cbackend.c
-	clang $(LOPS) -c blinker03.cbackend.c -o blinker03.cbackend.bc
-	$(OPT) $(OOPS) blinker03.cbackend.bc -f -o blinker03.cbackend.opt.bc
-	$(LLC) $(LLCOPS) blinker03.cbackend.opt.bc -o blinker03.cbackend.s
-	msp430-as blinker03.cbackend.s -o blinker03.cbackend.o
 
-blinker03.cbackend.elf : memmap startup.o reset.o blinker03.cbackend.o
-	msp430-ld -T memmap reset.o blinker03.cbackend.o startup.o -o blinker03.cbackend.elf
+$(APP).norm.o : $(APP).bc
+	$(LLC) $(LLCOPS) $(APP).bc -o $(APP).norm.s
+	msp430-as $(APP).norm.s -o $(APP).norm.o
+
+$(APP).norm.elf : memmap startup.o reset.o $(APP).norm.o
+	msp430-ld -T memmap reset.o $(APP).norm.o startup.o -o $(APP).norm.elf
+
+$(APP).norm.hex : $(APP).norm.elf
+	msp430-objdump -D $(APP).norm.elf > $(APP).norm.list
+	msp430-objcopy -O ihex $(APP).norm.elf $(APP).norm.hex
+
+
+$(APP).cbackend.o : $(APP).bc
+	$(LLC) -march=c $(APP).bc -o $(APP).cbackend.c
+	clang $(LOPS) -c $(APP).cbackend.c -o $(APP).cbackend.bc
+	$(OPT) $(OOPS) $(APP).cbackend.bc -f -o $(APP).cbackend.opt.bc
+	$(LLC) $(LLCOPS) $(APP).cbackend.opt.bc -o $(APP).cbackend.s
+	msp430-as $(APP).cbackend.s -o $(APP).cbackend.o
+
+$(APP).cbackend.elf : memmap startup.o reset.o $(APP).cbackend.o
+	msp430-ld -T memmap reset.o $(APP).cbackend.o startup.o -o $(APP).cbackend.elf
 
