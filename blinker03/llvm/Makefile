@@ -1,4 +1,5 @@
-
+OPT = opt-3.0
+LLC = llc-3.0
 
 AOPS = --warn --fatal-warnings
 
@@ -34,8 +35,8 @@ blinker03.bc : blinker03.c
 	clang $(LOPS) -c blinker03.c -o blinker03.bc
 
 blinker03.opt.o : blinker03.bc
-	opt $(OOPS) blinker03.bc -f -o blinker03.opt.bc
-	llc $(LLCOPS) blinker03.opt.bc -o blinker03.opt.s
+	$(OPT) $(OOPS) blinker03.bc -f -o blinker03.opt.bc
+	$(LLC) $(LLCOPS) blinker03.opt.bc -o blinker03.opt.s
 	msp430-as blinker03.opt.s -o blinker03.opt.o
 
 blinker03.opt.elf : memmap startup.o reset.o blinker03.opt.o
@@ -48,7 +49,7 @@ blinker03.opt.hex : blinker03.opt.elf
 
 
 blinker03.norm.o : blinker03.bc
-	llc $(LLCOPS) blinker03.bc -o blinker03.norm.s
+	$(LLC) $(LLCOPS) blinker03.bc -o blinker03.norm.s
 	msp430-as blinker03.norm.s -o blinker03.norm.o
 
 blinker03.norm.elf : memmap startup.o reset.o blinker03.norm.o
