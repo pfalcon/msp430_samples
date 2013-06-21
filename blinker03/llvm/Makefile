@@ -60,4 +60,13 @@ blinker03.norm.hex : blinker03.norm.elf
 	msp430-objcopy -O ihex blinker03.norm.elf blinker03.norm.hex
 
 
+blinker03.cbackend.o : blinker03.bc
+	$(LLC) -march=c blinker03.bc -o blinker03.cbackend.c
+	clang $(LOPS) -c blinker03.cbackend.c -o blinker03.cbackend.bc
+	$(OPT) $(OOPS) blinker03.cbackend.bc -f -o blinker03.cbackend.opt.bc
+	$(LLC) $(LLCOPS) blinker03.cbackend.opt.bc -o blinker03.cbackend.s
+	msp430-as blinker03.cbackend.s -o blinker03.cbackend.o
+
+blinker03.cbackend.elf : memmap startup.o reset.o blinker03.cbackend.o
+	msp430-ld -T memmap reset.o blinker03.cbackend.o startup.o -o blinker03.cbackend.elf
 
